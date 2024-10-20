@@ -201,7 +201,7 @@ class LiveDataActivity : AppCompatActivity() {
     }
 
     fun displayPrediction(predictedClass: Int) {
-        val activityLabels = arrayOf("ascending_stairs", "shuffle_walking", "sitting_standing", "misc_movement", "normal_walking", "lying_down", "descending_stairs")  // Adjust based on your model
+        val activityLabels = arrayOf("Ascending Stairs", "Shuffle Walking", "Sitting or Standing", "Misc Movement", "Normal Walking", "Lying Down", "Descending Stairs")
 
         // Ensure you're on the main thread before updating the UI
         runOnUiThread {
