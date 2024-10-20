@@ -59,5 +59,6 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava:2.3.0'
     implementation 'org.apache.commons:commons-lang3:3.7'
 
-
+    // TensorFlow Lite dependency for inference
+    implementation 'org.tensorflow:tensorflow-lite:2.12.0' // Add TensorFlow Lite dependency here
 }
