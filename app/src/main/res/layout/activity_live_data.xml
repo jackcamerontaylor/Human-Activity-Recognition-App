@@ -26,6 +26,15 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"/>
 
+        <TextView
+            android:id="@+id/predictionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Predicted Activity: "
+            android:textSize="18sp"
+            android:layout_gravity="center"
+            android:padding="16dp" />
+
     </LinearLayout>
 
     <LinearLayout

@@ -20,7 +20,14 @@ import com.specknet.pdiotapp.R
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.RESpeckLiveData
 import com.specknet.pdiotapp.utils.ThingyLiveData
+import org.tensorflow.lite.Interpreter
 import kotlin.collections.ArrayList
+import java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.io.FileInputStream
+import android.widget.TextView
 
 
 class LiveDataActivity : AppCompatActivity() {
@@ -51,9 +58,14 @@ class LiveDataActivity : AppCompatActivity() {
     val filterTestRespeck = IntentFilter(Constants.ACTION_RESPECK_LIVE_BROADCAST)
     val filterTestThingy = IntentFilter(Constants.ACTION_THINGY_BROADCAST)
 
+    private lateinit var tflite: Interpreter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_live_data)
+
+        // Initialise the TensorFlow Lite interpreter
+        tflite = Interpreter(loadModelFile())
 
         setupCharts()
 
@@ -75,6 +87,13 @@ class LiveDataActivity : AppCompatActivity() {
                     val x = liveData.accelX
                     val y = liveData.accelY
                     val z = liveData.accelZ
+
+                    val gyro = liveData.gyro
+                    val gyroX = gyro.x
+                    val gyroY = gyro.y
+                    val gyroZ = gyro.z
+
+                    addSensorDataToBuffer(x, y, z, gyroX, gyroY, gyroZ)
 
                     time += 1
                     updateGraph("respeck", x, y, z)
@@ -125,6 +144,79 @@ class LiveDataActivity : AppCompatActivity() {
 
     }
 
+    // NEW CODE HERE
+
+    // Function to load the model from assets folder
+    private fun loadModelFile(): MappedByteBuffer {
+        val fileDescriptor = assets.openFd("model.tflite")  // Make sure this matches your model file name
+        val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
+        val fileChannel = inputStream.channel
+        val startOffset = fileDescriptor.startOffset
+        val declaredLength = fileDescriptor.declaredLength
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+    }
+
+    val windowSize = 50  // Number of time steps
+    val featureSize = 6  // accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z
+    val slidingWindowBuffer = ArrayList<FloatArray>(windowSize)
+
+    fun addSensorDataToBuffer(accelX: Float, accelY: Float, accelZ: Float, gyroX: Float, gyroY: Float, gyroZ: Float) {
+        slidingWindowBuffer.add(floatArrayOf(accelX, accelY, accelZ, gyroX, gyroY, gyroZ))
+
+        // If the buffer is full, run inference
+        if (slidingWindowBuffer.size >= windowSize) {
+            runInference()  // Call this function when buffer is ready
+            slidingWindowBuffer.clear()  // Clear the buffer for the next sliding window
+        }
+    }
+
+    private fun convertToByteBuffer(): ByteBuffer {
+        val byteBuffer = ByteBuffer.allocateDirect(4 * windowSize * featureSize)  // 4 bytes per float
+        byteBuffer.order(ByteOrder.nativeOrder())  // Use native byte order
+
+        for (dataPoint in slidingWindowBuffer) {
+            for (value in dataPoint) {
+                byteBuffer.putFloat(value)
+            }
+        }
+
+        return byteBuffer
+    }
+
+    fun runInference() {
+        // Convert the buffer to ByteBuffer
+        val inputBuffer = convertToByteBuffer()
+
+        // Prepare output buffer to store the model’s predictions
+        val outputBuffer = Array(1) { FloatArray(7) }  // Replace NUM_CLASSES with the actual number of classes your model predicts
+
+        // Run the inference
+        tflite.run(inputBuffer, outputBuffer)
+
+        // Get the predicted class by taking the argmax of the output
+        val predictedClass = outputBuffer[0].indices.maxByOrNull { outputBuffer[0][it] } ?: -1
+
+        // Display the prediction in the UI
+        displayPrediction(predictedClass)
+    }
+
+    fun displayPrediction(predictedClass: Int) {
+        val activityLabels = arrayOf("ascending_stairs", "shuffle_walking", "sitting_standing", "misc_movement", "normal_walking", "lying_down", "descending_stairs")  // Adjust based on your model
+
+        // Ensure you're on the main thread before updating the UI
+        runOnUiThread {
+            val predictionTextView = findViewById<TextView>(R.id.predictionTextView)
+            if (predictedClass in activityLabels.indices) {
+                val predictedActivity = activityLabels[predictedClass]
+                predictionTextView.text = "Predicted Activity: $predictedActivity"
+            } else {
+                Log.e("Prediction Error", "Invalid predicted class index: $predictedClass")
+            }
+        }
+    }
+
+
+    // NEW CODE ENDS HERE
 
     fun setupCharts() {
         respeckChart = findViewById(R.id.respeck_chart)
