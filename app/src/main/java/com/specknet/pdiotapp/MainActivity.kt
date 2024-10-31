@@ -22,7 +22,7 @@ import com.specknet.pdiotapp.live.LiveDataActivity
 import com.specknet.pdiotapp.onboarding.OnBoardingActivity
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.Utils
-import kotlinx.android.synthetic.main.activity_main.*
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
     val filter = IntentFilter()
 
     var isUserFirstTime = false
+
+    private lateinit var coordinatorLayout: CoordinatorLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +81,7 @@ class MainActivity : AppCompatActivity() {
         filter.addAction(Constants.ACTION_RESPECK_CONNECTED)
         filter.addAction(Constants.ACTION_RESPECK_DISCONNECTED)
 
+        coordinatorLayout = findViewById(R.id.coordinatorLayout)
     }
 
     fun setupClickListeners() {
@@ -201,6 +204,7 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == Constants.REQUEST_CODE_PERMISSIONS) {
             if(grantResults.isNotEmpty()) {
                 for (i in grantResults.indices) {

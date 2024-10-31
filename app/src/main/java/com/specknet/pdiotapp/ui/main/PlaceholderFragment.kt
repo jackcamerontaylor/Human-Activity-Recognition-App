@@ -7,9 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import com.google.android.gms.location.places.Place
+import androidx.lifecycle.ViewModelProvider // Updated import statement
 import com.specknet.pdiotapp.R
 
 /**
@@ -27,7 +25,9 @@ class PlaceholderFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pageViewModel = ViewModelProviders.of(this).get(PageViewModel::class.java).apply {
+
+        // Updated ViewModel initialization
+        pageViewModel = ViewModelProvider(this).get(PageViewModel::class.java).apply {
             setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
         }
     }
@@ -38,13 +38,13 @@ class PlaceholderFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_on_boarding, container, false)
         val textView: TextView = root.findViewById(R.id.section_label)
-        textView.text = getString(titles[arguments?.getInt(ARG_SECTION_NUMBER)?.minus(1)!!])
+        textView.text = getString(titles[arguments?.getInt(ARG_SECTION_NUMBER)?.minus(1) ?: 0])
 
         img = root.findViewById(R.id.section_img)
-        img.setBackgroundResource(bgs[arguments?.getInt(ARG_SECTION_NUMBER)?.minus(1)!!])
+        img.setBackgroundResource(bgs[arguments?.getInt(ARG_SECTION_NUMBER)?.minus(1) ?: 0])
 
         description = root.findViewById(R.id.description_text)
-        description.text = getString(texts[arguments?.getInt(ARG_SECTION_NUMBER)?.minus(1)!!])
+        description.text = getString(texts[arguments?.getInt(ARG_SECTION_NUMBER)?.minus(1) ?: 0])
         return root
     }
 

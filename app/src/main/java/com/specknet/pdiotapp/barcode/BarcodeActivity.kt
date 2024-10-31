@@ -10,6 +10,8 @@ import android.os.Bundle
 import android.util.Log
 import android.util.SparseArray
 import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -19,7 +21,6 @@ import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import com.specknet.pdiotapp.R
-import kotlinx.android.synthetic.main.activity_barcode.*
 import java.lang.Exception
 
 class BarcodeActivity : AppCompatActivity() {
@@ -28,10 +29,14 @@ class BarcodeActivity : AppCompatActivity() {
     private lateinit var cameraSource: CameraSource
     private lateinit var detector: BarcodeDetector
 
+    private lateinit var cameraSurfaceView: SurfaceView
+    private lateinit var textScanResult: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_barcode)
-
+        cameraSurfaceView = findViewById(R.id.cameraSurfaceView) // Replace with your SurfaceView's ID
+        textScanResult = findViewById(R.id.textScanResult)
         if(ContextCompat.checkSelfPermission(
                 this@BarcodeActivity,
                 Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
