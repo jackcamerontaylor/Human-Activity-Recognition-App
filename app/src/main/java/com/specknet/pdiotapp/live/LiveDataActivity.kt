@@ -48,8 +48,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import com.specknet.pdiotapp.R
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 
 class PredictionViewModel : ViewModel() {
     private val _predictedActivity = MutableLiveData<String>("Waiting for prediction...")
@@ -197,14 +209,14 @@ class LiveDataActivity : ComponentActivity() {
         var backgroundColour by remember { mutableStateOf(Color.Magenta) }
         val predictedActivity by viewModel.predictedActivity.observeAsState("Waiting for prediction...")
         backgroundColour = when (predictedActivity) {
-            "Ascending Stairs" -> Color.Green
-            "Shuffle Walking" -> Color.Blue
-            "Sitting or Standing" -> Color.Gray
-            "Misc Movement" -> Color.Cyan
-            "Normal Walking" -> Color.Yellow
-            "Lying Down" -> Color.LightGray
-            "Descending Stairs" -> Color.Red
-            else -> Color.Magenta // Default color
+            "Ascending Stairs" -> Color(0xFF006400) // DarkGreen
+            "Shuffle Walking" -> Color(0xFF00008B)  // DarkBlue
+            "Sitting or Standing" -> Color(0xFFA9A9A9) // DarkGray
+            "Misc Movement" -> Color(0xFF008080)    // Teal
+            "Normal Walking" -> Color(0xFF556B2F)   // Olive
+            "Lying Down" -> Color(0xFF708090)       // SlateGray
+            "Descending Stairs" -> Color(0xFF800000) // Maroon
+            else -> Color(0xFF800080)               // Purple
         }
         Box(
             modifier = Modifier
@@ -214,23 +226,48 @@ class LiveDataActivity : ComponentActivity() {
             TopBox(predictedActivity)
         }
     }
-
+    val customFontFamily = FontFamily(
+        Font(R.font.ibmplexmed, FontWeight.Normal)
+    )
     @Composable
     fun TopBox(predictedActivity: String) {
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
         val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+        val imageResId = when (predictedActivity) {
+            "Ascending Stairs" -> R.drawable.ascending_stairs
+            "Shuffle Walking" -> R.drawable.shuffle_walking
+            "Sitting or Standing" -> R.drawable.sitting_or_standing
+            "Normal Walking" -> R.drawable.normal_walking
+            "Lying Down" -> R.drawable.lying_down
+            "Descending Stairs" -> R.drawable.descending_stairs
+            else -> null  // Default image
+        }
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(screenHeight * 0.2f)
+                .fillMaxWidth(0.8f)
+                .fillMaxHeight()
+
         ) {
-            Text(
-                "You are currently: $predictedActivity",
-                color = Color.White,
+            imageResId?.let { Image(
+                painter = painterResource(id = imageResId), // Replace with your image name
+                contentDescription = "Description of the image",
                 modifier = Modifier
-                    .offset(x = screenWidth * 0.1f, y = screenHeight * -0.02f)
-                    .align(Alignment.BottomStart)
+                    .align(Alignment.Center) // Center the image in the Box
+                    .offset(screenWidth * 0.1f)
+
+
+            ) } ?: run {}
+            Text(
+                predictedActivity,
+                color = Color.White,
+                style = TextStyle(
+                    fontFamily = customFontFamily,
+                    fontSize = 40.sp// Adjust size as needed
+                ),
+                modifier = Modifier
+                    .offset(x = screenWidth * 0.1f, y = -screenHeight * 0.1f)
+                    .align(Alignment.BottomCenter)
             )
         }
     }
