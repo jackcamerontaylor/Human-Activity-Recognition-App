@@ -67,6 +67,10 @@
                 <action android:name="com.specknet.pdiotapp.RESPECK_DISCONNECTED" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".history.ActivityHistory"
+            android:exported="true"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".bluetooth.BluetoothService"

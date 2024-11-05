@@ -1,6 +1,7 @@
 package com.specknet.pdiotapp
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -18,6 +19,7 @@ import androidx.core.app.ActivityCompat
 import com.google.android.material.snackbar.Snackbar
 import com.specknet.pdiotapp.bluetooth.BluetoothSpeckService
 import com.specknet.pdiotapp.bluetooth.ConnectingActivity
+import com.specknet.pdiotapp.history.ActivityHistory
 import com.specknet.pdiotapp.live.LiveDataActivity
 import com.specknet.pdiotapp.onboarding.OnBoardingActivity
 import com.specknet.pdiotapp.utils.Constants
@@ -30,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var liveProcessingButton: Button
     lateinit var pairingButton: Button
     lateinit var recordButton: Button
+    lateinit var historyButton: Button
 
     // permissions
     lateinit var permissionAlertDialog: AlertDialog.Builder
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
     var isUserFirstTime = false
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -66,6 +70,10 @@ class MainActivity : AppCompatActivity() {
         liveProcessingButton = findViewById(R.id.live_button)
         pairingButton = findViewById(R.id.ble_button)
         recordButton = findViewById(R.id.record_button)
+
+        // HSR button
+        historyButton = findViewById(R.id.history_button)
+        // HSR button
 
         permissionAlertDialog = AlertDialog.Builder(this)
 
@@ -94,6 +102,11 @@ class MainActivity : AppCompatActivity() {
 
         recordButton.setOnClickListener {
             val intent = Intent(this, RecordingActivity::class.java)
+            startActivity(intent)
+        }
+
+        historyButton.setOnClickListener {
+            val intent = Intent(this, ActivityHistory::class.java)
             startActivity(intent)
         }
     }

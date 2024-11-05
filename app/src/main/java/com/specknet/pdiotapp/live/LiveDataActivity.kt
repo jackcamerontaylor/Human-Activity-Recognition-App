@@ -198,7 +198,14 @@ class LiveDataActivity : AppCompatActivity() {
 
         // Display the prediction in the UI
         displayPrediction(predictedClass)
+
+        // TODO: save this
     }
+
+    // TODO: fun to save the data.
+    //    fun saveActivity(predictedClass: Int) {
+    //
+    //    }
 
     fun displayPrediction(predictedClass: Int) {
         val activityLabels = arrayOf("Ascending Stairs", "Shuffle Walking", "Sitting or Standing", "Misc Movement", "Normal Walking", "Lying Down", "Descending Stairs")
