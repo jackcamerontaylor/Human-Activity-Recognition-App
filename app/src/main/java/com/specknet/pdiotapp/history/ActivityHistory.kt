@@ -2,7 +2,10 @@ package com.specknet.pdiotapp.history
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.specknet.pdiotapp.R
+
 
 class ActivityHistory : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
