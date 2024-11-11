@@ -57,7 +57,7 @@
 ////                    // Populate the database in the background.
 ////                    // If you want to start with more words, just add them.
 ////                    val dao: ActivityDao =
-////                        com.example.android.roomwordssample.WordRoomDatabase.INSTANCE.activityDao()
+////                        com.example.android.roomwordssample.ActivityDatabase.INSTANCE.activityDao()
 ////                    dao.deleteAll()
 ////
 ////                    var word: Word? = Word("Hello")

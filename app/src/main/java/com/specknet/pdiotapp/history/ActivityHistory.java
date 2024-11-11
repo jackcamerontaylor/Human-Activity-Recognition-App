@@ -11,7 +11,7 @@ public class ActivityHistory extends AppCompatActivity {
 
     public static final int NEW_WORD_ACTIVITY_REQUEST_CODE = 1;
 
-//    private ActivityViewModel mWordViewModel;
+    private ActivityViewModel mWordViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
