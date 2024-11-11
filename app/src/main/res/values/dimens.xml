@@ -19,4 +19,9 @@
     <dimen name="appbar_header_height">256dp</dimen>
     <dimen name="activity_margin_half">8dp</dimen>
     <dimen name="activity_margin_content">24dp</dimen>
+
+    <!-- Activity history values -->
+    <dimen name="small_padding">8dp</dimen>
+    <dimen name="big_padding">16dp</dimen>
+    <dimen name="min_height">48dp</dimen>
 </resources>
