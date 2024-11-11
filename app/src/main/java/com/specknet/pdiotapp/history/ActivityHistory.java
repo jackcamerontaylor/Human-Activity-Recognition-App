@@ -3,6 +3,7 @@ package com.specknet.pdiotapp.history;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,9 +25,14 @@ public class ActivityHistory extends AppCompatActivity {
         final ActivityListAdapter adapter = new ActivityListAdapter(new ActivityListAdapter.WordDiff());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//
-//        // Get a new or existing ViewModel from the ViewModelProvider.
-//        mWordViewModel = new ViewModelProvider(this).get(WordViewModel.class);
+
+        // Get a new or existing ViewModel from the ViewModelProvider.
+        mWordViewModel = new ViewModelProvider(this).get(ActivityViewModel.class);
+
+        mWordViewModel.getAllWords().observe(this, words -> {
+            // Update the cached copy of the words in the adapter.
+            adapter.submitList(words);
+        });
 
         // TODO: edit below code for:
         //  - adding interaction with the activity history (like deleting items) and
@@ -34,10 +40,6 @@ public class ActivityHistory extends AppCompatActivity {
         // Add an observer on the LiveData returned by getAlphabetizedWords.
         // The onChanged() method fires when the observed data changes and the activity is
         // in the foreground.
-//        mWordViewModel.getAllWords().observe(this, words -> {
-//            // Update the cached copy of the words in the adapter.
-//            adapter.submitList(words);
-//        });
 //
 //        FloatingActionButton fab = findViewById(R.id.fab);
 //        fab.setOnClickListener(view -> {
