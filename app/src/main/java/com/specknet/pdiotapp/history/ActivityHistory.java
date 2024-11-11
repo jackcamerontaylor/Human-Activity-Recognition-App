@@ -3,6 +3,7 @@ package com.specknet.pdiotapp.history;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.specknet.pdiotapp.R;
 
@@ -18,8 +19,8 @@ public class ActivityHistory extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
-//        RecyclerView recyclerView = findViewById(R.id.recyclerview);
-//        final WordListAdapter adapter = new WordListAdapter(new WordListAdapter.WordDiff());
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
+        final ActivityListAdapter adapter = new ActivityListAdapter(new ActivityListAdapter.WordDiff());
 //        recyclerView.setAdapter(adapter);
 //        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 //
