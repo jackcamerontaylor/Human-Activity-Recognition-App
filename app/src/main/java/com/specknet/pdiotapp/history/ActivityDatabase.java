@@ -34,9 +34,9 @@ import java.util.concurrent.Executors;
  */
 
 @Database(entities = {Word.class}, version = 1, exportSchema = false)
-abstract class ActivityDatabase extends RoomDatabase {
+public abstract class ActivityDatabase extends RoomDatabase {
 
-    abstract WordDao wordDao();
+    abstract ActivityDao activityDao();
 
     // marking the instance as volatile to ensure atomic access to the variable
     private static volatile ActivityDatabase INSTANCE;
@@ -49,7 +49,7 @@ abstract class ActivityDatabase extends RoomDatabase {
             synchronized (ActivityDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                                    ActivityDatabase.class, "word_database")
+                                    ActivityDatabase.class, "activity_database")
                             .addCallback(sRoomDatabaseCallback)
                             .build();
                 }
@@ -70,13 +70,19 @@ abstract class ActivityDatabase extends RoomDatabase {
             databaseWriteExecutor.execute(() -> {
                 // Populate the database in the background.
                 // If you want to start with more words, just add them.
-                WordDao dao = INSTANCE.wordDao();
-                dao.deleteAll();
+                ActivityDao dao = INSTANCE.activityDao();
+//                dao.deleteAll();
 
-                Word word = new Word("Hello");
-                dao.insert(word);
-                word = new Word("World");
-                dao.insert(word);
+//                Word word = new Word("Hello");
+//                dao.insert(word);
+//                word = new Word("World");
+//                dao.insert(word);
+
+                // TODO: dummy activities for testing:
+                Activity activity = new Activity(1L, 3L, "Walking");
+                dao.insert(activity);
+                activity = new Activity(4L, 8L, "Ascending stairs");
+                dao.insert(activity);
             });
         }
     };

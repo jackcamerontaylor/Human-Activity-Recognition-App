@@ -44,7 +44,7 @@
 //                // Allowing main thread queries, just for testing.
 //                .allowMainThreadQueries()
 //                .build();
-//        mWordDao = WordDatabase.getDatabase getWordDao();
+//        mWordDao = new WordDao();
 //    }
 //
 //    @After
