@@ -34,6 +34,8 @@ public class ActivityHistory extends AppCompatActivity {
             adapter.submitList(words);
         });
 
+//        mWordViewModel.insert(new Activity(9L, 10L, "Sleeping"));
+
         // TODO: edit below code for:
         //  - adding interaction with the activity history (like deleting items) and
         //  - fancy refresh methods (list is updated in real-time)
