@@ -25,6 +25,25 @@ import java.time.Period;
 @Entity(tableName = "activity_table")
 public class Activity {
     @NonNull
+    public Long getStart() {
+        return start;
+    }
+
+    @NonNull
+    public Long getEnd() {
+        return end;
+    }
+
+    @NonNull
+    public String getActivity_type() {
+        return activity_type;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    @NonNull
     @ColumnInfo(name = "Start")
 //    private LocalDateTime start;
     private Long start;
@@ -69,4 +88,9 @@ public class Activity {
 //    public String getWord() {
 //        return this.mWord;
 //    }
+
+    @NonNull
+    public String getActivity() {
+        return (this.start.toString() + this.end.toString() + this.activity_type);
+    }
 }

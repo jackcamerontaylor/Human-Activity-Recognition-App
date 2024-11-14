@@ -34,19 +34,19 @@ public class ActivityViewModel extends AndroidViewModel {
     // - We can put an observer on the data (instead of polling for changes) and only update the
     //   the UI when the data actually changes.
     // - Repository is completely separated from the UI through the ViewModel.
-    private final LiveData<List<Word>> mAllWords;
+    private final LiveData<List<Activity>> mAllActivities;
 
     public ActivityViewModel(Application application) {
         super(application);
         mRepository = new ActivityRepository(application);
-        mAllWords = mRepository.getAllWords();
+        mAllActivities = mRepository.getAllActivities();
     }
 
-    LiveData<List<Word>> getAllWords() {
-        return mAllWords;
+    LiveData<List<Activity>> getAllActivities() {
+        return mAllActivities;
     }
 
-    void insert(Word word) {
-        mRepository.insert(word);
+    void insert(Activity activity) {
+        mRepository.insert(activity);
     }
 }

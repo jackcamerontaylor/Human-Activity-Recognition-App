@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
  * app, consider exporting the schema to help you with migrations.
  */
 
-@Database(entities = {Word.class}, version = 1, exportSchema = false)
+@Database(entities = {Activity.class}, version = 1, exportSchema = false)
 public abstract class ActivityDatabase extends RoomDatabase {
 
     abstract ActivityDao activityDao();

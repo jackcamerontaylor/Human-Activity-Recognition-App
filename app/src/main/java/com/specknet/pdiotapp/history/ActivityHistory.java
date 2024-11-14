@@ -29,7 +29,7 @@ public class ActivityHistory extends AppCompatActivity {
         // Get a new or existing ViewModel from the ViewModelProvider.
         mWordViewModel = new ViewModelProvider(this).get(ActivityViewModel.class);
 
-        mWordViewModel.getAllWords().observe(this, words -> {
+        mWordViewModel.getAllActivities().observe(this, words -> {
             // Update the cached copy of the words in the adapter.
             adapter.submitList(words);
         });

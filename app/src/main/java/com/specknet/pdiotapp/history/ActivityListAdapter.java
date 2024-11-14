@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
 
-public class ActivityListAdapter extends ListAdapter<Word, ActivityViewHolder> {
+public class ActivityListAdapter extends ListAdapter<Activity, ActivityViewHolder> {
 
-    public ActivityListAdapter(@NonNull DiffUtil.ItemCallback<Word> diffCallback) {
+    public ActivityListAdapter(@NonNull DiffUtil.ItemCallback<Activity> diffCallback) {
         super(diffCallback);
     }
 
@@ -20,20 +20,20 @@ public class ActivityListAdapter extends ListAdapter<Word, ActivityViewHolder> {
 
     @Override
     public void onBindViewHolder(ActivityViewHolder holder, int position) {
-        Word current = getItem(position);
-        holder.bind(current.getWord());
+        Activity current = getItem(position);
+        holder.bind(current.getActivity());
     }
 
-    static class WordDiff extends DiffUtil.ItemCallback<Word> {
+    static class WordDiff extends DiffUtil.ItemCallback<Activity> {
 
         @Override
-        public boolean areItemsTheSame(@NonNull Word oldItem, @NonNull Word newItem) {
+        public boolean areItemsTheSame(@NonNull Activity oldItem, @NonNull Activity newItem) {
             return oldItem == newItem;
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Word oldItem, @NonNull Word newItem) {
-            return oldItem.getWord().equals(newItem.getWord());
+        public boolean areContentsTheSame(@NonNull Activity oldItem, @NonNull Activity newItem) {
+            return oldItem.getActivity().equals(newItem.getActivity());
         }
     }
 }

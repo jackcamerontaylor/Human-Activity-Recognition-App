@@ -11,15 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.specknet.pdiotapp.R;
 
 class ActivityViewHolder extends RecyclerView.ViewHolder {
-    private final TextView wordItemView;
+    private final TextView activityItemView;
 
     private ActivityViewHolder(View itemView) {
         super(itemView);
-        wordItemView = itemView.findViewById(R.id.textView);
+        activityItemView = itemView.findViewById(R.id.textView);
     }
 
     public void bind(String text) {
-        wordItemView.setText(text);
+        activityItemView.setText(text);
     }
 
     static ActivityViewHolder create(ViewGroup parent) {

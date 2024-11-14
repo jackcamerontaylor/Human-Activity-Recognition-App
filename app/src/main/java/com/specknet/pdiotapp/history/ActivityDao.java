@@ -20,6 +20,7 @@ import java.util.List;
  * https://developer.android.com/topic/libraries/architecture/room.html#type-converters
  */
 
+@Dao
 public interface ActivityDao {
     @Insert()
     void insert(Activity activity);
@@ -38,7 +39,7 @@ public interface ActivityDao {
     abstract void deleteActivitiesInGivenTimeframe(Long startTimestamp, Long endTimestamp);
 
     @Query("SELECT * from activity_table ORDER BY start ASC")
-    abstract Activity[] getAllActivities();
+    abstract LiveData<List<Activity>> getAllActivities();
 
     // TODO
     @Query("SELECT * from activity_table WHERE (start < :endTimestamp AND `End` > :startTimestamp)")
