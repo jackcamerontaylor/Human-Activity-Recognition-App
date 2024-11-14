@@ -46,7 +46,7 @@ public class ActivityViewModel extends AndroidViewModel {
         return mAllActivities;
     }
 
-    void insert(Activity activity) {
+    public void insert(Activity activity) {
         mRepository.insert(activity);
     }
 }
