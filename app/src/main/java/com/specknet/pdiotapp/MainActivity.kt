@@ -21,6 +21,7 @@ import com.specknet.pdiotapp.bluetooth.BluetoothSpeckService
 import com.specknet.pdiotapp.bluetooth.ConnectingActivity
 import com.specknet.pdiotapp.history.ActivityHistory
 import com.specknet.pdiotapp.live.LiveDataActivity
+import com.specknet.pdiotapp.live.SocialSignalsActivity
 import com.specknet.pdiotapp.onboarding.OnBoardingActivity
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.Utils
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var pairingButton: Button
     lateinit var recordButton: Button
     lateinit var historyButton: Button
+    lateinit var socialSignalsButton: Button
 
     // permissions
     lateinit var permissionAlertDialog: AlertDialog.Builder
@@ -68,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         liveProcessingButton = findViewById(R.id.live_button)
+        socialSignalsButton = findViewById(R.id.social_signals_button)
         pairingButton = findViewById(R.id.ble_button)
         recordButton = findViewById(R.id.record_button)
 
@@ -92,6 +95,11 @@ class MainActivity : AppCompatActivity() {
     fun setupClickListeners() {
         liveProcessingButton.setOnClickListener {
             val intent = Intent(this, LiveDataActivity::class.java)
+            startActivity(intent)
+        }
+
+        socialSignalsButton.setOnClickListener {  // Navigate to SocialSignalsActivity
+            val intent = Intent(this, SocialSignalsActivity::class.java)
             startActivity(intent)
         }
 

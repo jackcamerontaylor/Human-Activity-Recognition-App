@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
-import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.specknet.pdiotapp.R
@@ -21,25 +20,25 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
-class LiveDataActivity : AppCompatActivity() {
+class SocialSignalsActivity : AppCompatActivity() {
 
     private lateinit var tflite: Interpreter
     private lateinit var respeckLiveUpdateReceiver: BroadcastReceiver
     private lateinit var looperRespeck: Looper
     private val filterTestRespeck = IntentFilter(Constants.ACTION_RESPECK_LIVE_BROADCAST)
 
-    val windowSize = 50  // Number of time steps
+    val windowSize = 100  // Number of time steps
     val featureSize = 3  // accel_x, accel_y, accel_z
     val slidingWindowBuffer = ArrayList<FloatArray>(windowSize)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_live_data)
+        setContentView(R.layout.activity_social_signals)  // Point to the social signals layout
 
-        // Initialise the TensorFlow Lite interpreter
-        tflite = Interpreter(loadModelFile())
+        // Initialise the TensorFlow Lite interpreter for social signals
+        tflite = Interpreter(loadModelFile("social_signals.tflite"))
 
-        // Set up the broadcast receiver for respeck data
+        // Set up the broadcast receiver for Respeck data
         respeckLiveUpdateReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val action = intent.action
@@ -53,7 +52,7 @@ class LiveDataActivity : AppCompatActivity() {
             }
         }
 
-        // Register receiver on another thread
+        // Register the receiver on another thread
         val handlerThreadRespeck = HandlerThread("bgThreadRespeckLive")
         handlerThreadRespeck.start()
         looperRespeck = handlerThreadRespeck.looper
@@ -61,8 +60,8 @@ class LiveDataActivity : AppCompatActivity() {
         this.registerReceiver(respeckLiveUpdateReceiver, filterTestRespeck, null, handlerRespeck)
     }
 
-    private fun loadModelFile(): MappedByteBuffer {
-        val fileDescriptor = assets.openFd("daily_physical_activity.tflite")
+    private fun loadModelFile(modelFileName: String): MappedByteBuffer {
+        val fileDescriptor = assets.openFd(modelFileName)
         val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
         val fileChannel = inputStream.channel
         val startOffset = fileDescriptor.startOffset
@@ -70,8 +69,8 @@ class LiveDataActivity : AppCompatActivity() {
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
     }
 
-    private fun addSensorDataToBuffer(accelX: Float, accelY: Float, accelZ: Float) {
-        slidingWindowBuffer.add(floatArrayOf(accelX, accelY, accelZ))
+    private fun addSensorDataToBuffer(x: Float, y: Float, z: Float) {
+        slidingWindowBuffer.add(floatArrayOf(x, y, z))
         if (slidingWindowBuffer.size >= windowSize) {
             runInference()
             slidingWindowBuffer.clear()
@@ -91,23 +90,20 @@ class LiveDataActivity : AppCompatActivity() {
 
     private fun runInference() {
         val inputBuffer = convertToByteBuffer()
-        val outputBuffer = Array(1) { FloatArray(11) }
+        val outputBuffer = Array(1) { FloatArray(4) } // Assuming 4 social signal classes
         tflite.run(inputBuffer, outputBuffer)
         val predictedClass = outputBuffer[0].indices.maxByOrNull { outputBuffer[0][it] } ?: -1
         displayPrediction(predictedClass)
     }
 
     private fun displayPrediction(predictedClass: Int) {
-        val activityLabels = arrayOf("Sitting or Standing", "Lying Down on Back", "Lying Down on Left",
-            "Lying Down on Right", "Lying Down on Stomach", "Ascending Stairs", "Shuffle Walking",
-            "Misc Movement", "Normal Walking", "Descending Stairs", "Running")
-
+        val socialSignalLabels = arrayOf("Normal Breathing", "Coughing", "Hyperventilation", "Other")
         runOnUiThread {
-            val predictionTextView = findViewById<TextView>(R.id.predictionTextView)
-            if (predictedClass in activityLabels.indices) {
-                predictionTextView.text = "Predicted Activity: ${activityLabels[predictedClass]}"
+            val predictionTextView = findViewById<TextView>(R.id.socialPredictionTextView)
+            predictionTextView.text = if (predictedClass in socialSignalLabels.indices) {
+                "Predicted Social Signal: ${socialSignalLabels[predictedClass]}"
             } else {
-                Log.e("Prediction Error", "Invalid predicted class index: $predictedClass")
+                "Invalid prediction"
             }
         }
     }
