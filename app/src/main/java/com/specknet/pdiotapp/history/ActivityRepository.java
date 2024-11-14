@@ -20,7 +20,7 @@ class ActivityRepository {
     // See the BasicSample in the android-architecture-components repository at
     // https://github.com/googlesamples
     ActivityRepository(Application application) {
-        ActivityDatabase db = ActivityDatabase.getDatabase(application);
+        WordDatabase db = WordDatabase.getDatabase(application);
         mWordDao = db.wordDao();
         mAllWords = mWordDao.getAlphabetizedWords();
     }
@@ -34,7 +34,7 @@ class ActivityRepository {
     // You must call this on a non-UI thread or your app will throw an exception. Room ensures
     // that you're not doing any long running operations on the main thread, blocking the UI.
     void insert(Word word) {
-        ActivityDatabase.databaseWriteExecutor.execute(() -> {
+        WordDatabase.databaseWriteExecutor.execute(() -> {
             mWordDao.insert(word);
         });
     }

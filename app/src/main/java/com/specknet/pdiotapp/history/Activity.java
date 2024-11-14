@@ -26,11 +26,13 @@ import java.time.Period;
 public class Activity {
     @NonNull
     @ColumnInfo(name = "Start")
-    private LocalDateTime start;
+//    private LocalDateTime start;
+    private Long start;
 
     @NonNull
     @ColumnInfo(name = "End")
-    private LocalDateTime end;
+//    private LocalDateTime end;
+    private Long end;
 
     @NonNull
     @ColumnInfo(name = "Type")
@@ -38,25 +40,29 @@ public class Activity {
 
     // TODO: activity type vs name.
 
-    @NonNull
-    @ColumnInfo(name = "Duration")
-    private Period duration;
+//    @NonNull
+//    @ColumnInfo(name = "Duration")
+////    private Period duration;
+//    private String duration;
 
     public Activity(
-            @NonNull LocalDateTime start,
-            @NonNull LocalDateTime end,
-            @NonNull String activity_type,
-            @NonNull Period duration
+//            @NonNull LocalDateTime start,
+//            @NonNull LocalDateTime end,
+            @NonNull Long start,
+            @NonNull Long end,
+            @NonNull String activity_type
+//            @NonNull Period duration
+//            @NonNull String duration
     ) {
         this.start = start;
         this.end = end;
         this.activity_type = activity_type;
-        this.duration = duration;
+//        this.duration = duration;
     }
 
     // TODO: check whether this actually  auto-generates
     @PrimaryKey(autoGenerate = true)
-    int id = 0;
+    long id = 0;
 
 
 //    @NonNull

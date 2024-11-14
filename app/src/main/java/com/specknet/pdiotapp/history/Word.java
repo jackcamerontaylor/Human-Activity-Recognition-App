@@ -14,8 +14,12 @@ import androidx.annotation.NonNull;
  * @ ColumnInfo - You must supply the column name if it is different from the variable name.
  *
  * See the documentation for the full rich set of annotations.
- * https://developer.android.com/topic/libraries/architecture/room.html
+ * <a href="https://developer.android.com/topic/libraries/architecture/room.html">...</a>
  */
+
+// start
+// end
+// type
 
 @Entity(tableName = "word_table")
 public class Word {
