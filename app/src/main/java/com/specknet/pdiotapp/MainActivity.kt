@@ -93,13 +93,6 @@ class MainActivity : AppCompatActivity() {
         // register a broadcast receiver for respeck status
         filter.addAction(Constants.ACTION_RESPECK_CONNECTED)
         filter.addAction(Constants.ACTION_RESPECK_DISCONNECTED)
-
-        // TODO: DB "testing" stuff
-        // Get a new or existing ViewModel from the ViewModelProvider.
-        val mWordViewModel =
-            ViewModelProvider(this).get<ActivityViewModel>(ActivityViewModel::class.java)
-
-        mWordViewModel.insert(Activity(20L, 24L, "walking"));
     }
 
     fun setupClickListeners() {
