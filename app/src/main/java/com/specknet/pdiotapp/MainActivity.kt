@@ -13,6 +13,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -29,9 +31,32 @@ import com.specknet.pdiotapp.live.SocialSignalsActivity
 import com.specknet.pdiotapp.onboarding.OnBoardingActivity
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.Utils
-import kotlinx.android.synthetic.main.activity_main.*
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.compose.runtime.Composable
+import com.specknet.pdiotapp.ui.theme.YourAppTheme
+import androidx.compose.material3.Text
 
-class MainActivity : AppCompatActivity() {
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.material3.Button
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.layout.Column
+import com.specknet.pdiotapp.R
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+
+
+class MainActivity : ComponentActivity() {
 
     // buttons and textviews
     lateinit var liveProcessingButton: Button
@@ -55,11 +80,18 @@ class MainActivity : AppCompatActivity() {
     val filter = IntentFilter()
 
     var isUserFirstTime = false
+    private lateinit var coordinatorLayout: CoordinatorLayout
+
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContent {
+            YourAppTheme {
+                // Call your composable function here
+                MainContent() // Your main composable function
+            }
+        }
 
         // check whether the onboarding screen should be shown
         val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, Context.MODE_PRIVATE)
@@ -73,18 +105,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(introIntent)
         }
 
-        liveProcessingButton = findViewById(R.id.live_button)
-        socialSignalsButton = findViewById(R.id.social_signals_button)
-        pairingButton = findViewById(R.id.ble_button)
-        recordButton = findViewById(R.id.record_button)
-
-        // HSR button
-        historyButton = findViewById(R.id.history_button)
-        // HSR button
 
         permissionAlertDialog = AlertDialog.Builder(this)
-
-        setupClickListeners()
 
         setupPermissions()
 
@@ -95,25 +117,66 @@ class MainActivity : AppCompatActivity() {
         filter.addAction(Constants.ACTION_RESPECK_DISCONNECTED)
     }
 
-    fun setupClickListeners() {
-        liveProcessingButton.setOnClickListener {
-            val intent = Intent(this, LiveDataActivity::class.java)
-            startActivity(intent)
-        }
+    val delius = FontFamily(
+        Font(R.font.delius, FontWeight.Normal)
+    )
 
-        socialSignalsButton.setOnClickListener {  // Navigate to SocialSignalsActivity
-            val intent = Intent(this, SocialSignalsActivity::class.java)
-            startActivity(intent)
-        }
+    @Composable
+    fun MainContent() {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Column for the buttons centered horizontally
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 100.dp, top = 100.dp), // Add bottom padding to avoid overlap with image
+                horizontalAlignment = Alignment.CenterHorizontally, // Center items horizontally
+                verticalArrangement = Arrangement.Top // Align items at the top
+            ) {
+                Text(
+                    "Health App",
+                    color = Color.Black,
+                    style = TextStyle(
+                        fontFamily = delius,
+                        fontSize = 40.sp// Adjust size as needed
+                    ),
+                    modifier = Modifier.padding(bottom = 30.dp)
+                )
+                LiveDataActBut()
+                Spacer(modifier = Modifier.height(16.dp))
+                PairingActBut()
+            }
 
-        pairingButton.setOnClickListener {
-            val intent = Intent(this, ConnectingActivity::class.java)
-            startActivity(intent)
+            // Image at the bottom of the screen
+            Image(
+                painter = painterResource(id = R.drawable.home_page), // Replace with your image resource
+                contentDescription = "Description of the image", // Description for accessibility
+                modifier = Modifier
+                    .align(Alignment.BottomCenter) // Align image at the bottom center
+                    .padding(16.dp) // Optional padding around the image
+            )
         }
+    }
 
-        recordButton.setOnClickListener {
-            val intent = Intent(this, RecordingActivity::class.java)
-            startActivity(intent)
+    @Composable
+    fun LiveDataActBut() {
+        val context = LocalContext.current // Get the current context
+        Button(onClick = {
+            val intent = Intent(context, LiveDataActivity::class.java) // Create an Intent to start LiveDataActivity
+            context.startActivity(intent) // Start the activity
+        }) {
+            Text(text = "Watch Live HAR")
+
+        }
+    }
+
+    @Composable
+    fun PairingActBut() {
+        val context = LocalContext.current // Get the current context
+        Button(onClick = {
+            val intent = Intent(context, ConnectingActivity::class.java) // Create an Intent to start LiveDataActivity
+            context.startActivity(intent) // Start the activity
+        }) {
+            Text(text = "Pair Sensors")
         }
 
         historyButton.setOnClickListener {
@@ -225,6 +288,7 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == Constants.REQUEST_CODE_PERMISSIONS) {
             if(grantResults.isNotEmpty()) {
                 for (i in grantResults.indices) {

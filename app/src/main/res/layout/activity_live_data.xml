@@ -7,16 +7,31 @@
     android:layout_height="match_parent"
     tools:context=".live.LiveDataActivity">
 
-    <TextView
-        android:id="@+id/predictionTextView"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/thingy_graphs"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="Predicted Activity: "
-        android:textSize="18sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thingy Live Data" />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/thingy_chart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp" />
+
+
+    </LinearLayout>
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
