@@ -28,9 +28,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,13 +41,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.specknet.pdiotapp.ui.theme.YourAppTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.Button
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -58,10 +54,7 @@ import com.specknet.pdiotapp.R
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 
 class PredictionViewModel : ViewModel() {
     private val _predictedActivity = MutableLiveData<String>("Waiting for prediction...")
@@ -227,7 +220,7 @@ class LiveDataActivity : ComponentActivity() {
         }
     }
     val customFontFamily = FontFamily(
-        Font(R.font.ibmplexmed, FontWeight.Normal)
+        Font(R.font.delius, FontWeight.Normal)
     )
     @Composable
     fun TopBox(predictedActivity: String) {
