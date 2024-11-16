@@ -19,7 +19,6 @@ import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.io.FileInputStream
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -52,8 +51,9 @@ import com.specknet.pdiotapp.R
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResourceimport java.nio.MappedByteBuffer
+import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import androidx.compose.ui.res.painterResource
 
 class PredictionViewModel : ViewModel() {
     private val _predictedActivity = MutableLiveData<String>("Waiting for prediction...")
@@ -83,8 +83,6 @@ class LiveDataActivity : ComponentActivity() {
         tflite = Interpreter(loadModelFile())
         setupRespeckReceiver()
 
-        // Set up the broadcast receiver for Thingy
-        setupThingyReceiver()
         setContent {
             YourAppTheme {
                     // Call your composable function here
@@ -92,7 +90,7 @@ class LiveDataActivity : ComponentActivity() {
             }
         }
 
-        // Initialise the TensorFlow Lite interpreter
+
 
     }
         // set up the broadcast receiver
@@ -125,41 +123,6 @@ class LiveDataActivity : ComponentActivity() {
             null,
             handlerRespeck
         )
-    }
-
-        // set up the broadcast receiver
-    private fun setupThingyReceiver() {
-        thingyLiveUpdateReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-
-                Log.i("thread", "I am running on thread = " + Thread.currentThread().name)
-
-                val action = intent.action
-
-                if (action == Constants.ACTION_THINGY_BROADCAST) {
-
-                    val liveData =
-                        intent.getSerializableExtra(Constants.THINGY_LIVE_DATA) as ThingyLiveData
-                    Log.d("Live", "onReceive: liveData = " + liveData)
-
-                    // get all relevant intent contents
-                    val x = liveData.accelX
-                    val y = liveData.accelY
-                    val z = liveData.accelZ
-
-                    time += 1
-
-                }
-            }
-        }
-
-        // register receiver on another thread
-        val handlerThreadThingy = HandlerThread("bgThreadThingyLive")
-        handlerThreadThingy.start()
-        looperThingy = handlerThreadThingy.looper
-        val handlerThingy = Handler(looperThingy)
-        this.registerReceiver(thingyLiveUpdateReceiver, filterTestThingy, null, handlerThingy)
-
     }
 
     @Composable
