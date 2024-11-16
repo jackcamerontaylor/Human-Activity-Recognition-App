@@ -1,11 +1,11 @@
 package com.specknet.pdiotapp
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -16,11 +16,18 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.specknet.pdiotapp.bluetooth.BluetoothSpeckService
 import com.specknet.pdiotapp.bluetooth.ConnectingActivity
+import com.specknet.pdiotapp.history.Activity
+import com.specknet.pdiotapp.history.ActivityHistory
+import com.specknet.pdiotapp.history.ActivityViewModel
 import com.specknet.pdiotapp.live.LiveDataActivity
+import com.specknet.pdiotapp.live.SocialSignalsActivity
 import com.specknet.pdiotapp.onboarding.OnBoardingActivity
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.Utils
@@ -55,6 +62,8 @@ class MainActivity : ComponentActivity() {
     lateinit var liveProcessingButton: Button
     lateinit var pairingButton: Button
     lateinit var recordButton: Button
+    lateinit var historyButton: Button
+    lateinit var socialSignalsButton: Button
 
     // permissions
     lateinit var permissionAlertDialog: AlertDialog.Builder
@@ -71,9 +80,10 @@ class MainActivity : ComponentActivity() {
     val filter = IntentFilter()
 
     var isUserFirstTime = false
-
     private lateinit var coordinatorLayout: CoordinatorLayout
 
+
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -94,6 +104,7 @@ class MainActivity : ComponentActivity() {
             val introIntent = Intent(this, OnBoardingActivity::class.java)
             startActivity(introIntent)
         }
+
 
         permissionAlertDialog = AlertDialog.Builder(this)
 
@@ -150,11 +161,11 @@ class MainActivity : ComponentActivity() {
     fun LiveDataActBut() {
         val context = LocalContext.current // Get the current context
         Button(onClick = {
-
             val intent = Intent(context, LiveDataActivity::class.java) // Create an Intent to start LiveDataActivity
             context.startActivity(intent) // Start the activity
         }) {
             Text(text = "Watch Live HAR")
+
         }
     }
 
@@ -166,6 +177,11 @@ class MainActivity : ComponentActivity() {
             context.startActivity(intent) // Start the activity
         }) {
             Text(text = "Pair Sensors")
+        }
+
+        historyButton.setOnClickListener {
+            val intent = Intent(this, ActivityHistory::class.java)
+            startActivity(intent)
         }
     }
 

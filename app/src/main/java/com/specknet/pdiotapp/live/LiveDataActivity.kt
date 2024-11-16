@@ -12,13 +12,11 @@ import android.util.Log
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.RESpeckLiveData
-import com.specknet.pdiotapp.utils.ThingyLiveData
 import org.tensorflow.lite.Interpreter
-import kotlin.collections.ArrayList
-import java.nio.MappedByteBuffer
-import java.nio.channels.FileChannel
+import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.io.FileInputStream
@@ -54,7 +52,8 @@ import com.specknet.pdiotapp.R
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.painterResourceimport java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
 
 class PredictionViewModel : ViewModel() {
     private val _predictedActivity = MutableLiveData<String>("Waiting for prediction...")
@@ -70,33 +69,14 @@ class LiveDataActivity : ComponentActivity() {
 
     private val predictionViewModel: PredictionViewModel by viewModels()
 
-    // global graph variables
-    lateinit var dataSet_res_accel_x: LineDataSet
-    lateinit var dataSet_res_accel_y: LineDataSet
-    lateinit var dataSet_res_accel_z: LineDataSet
-
-    lateinit var dataSet_thingy_accel_x: LineDataSet
-    lateinit var dataSet_thingy_accel_y: LineDataSet
-    lateinit var dataSet_thingy_accel_z: LineDataSet
-
-    var time = 0f
-    lateinit var allRespeckData: LineData
-
-    lateinit var allThingyData: LineData
-
-    lateinit var respeckChart: LineChart
-    lateinit var thingyChart: LineChart
-
-    // global broadcast receiver so we can unregister it
-    lateinit var respeckLiveUpdateReceiver: BroadcastReceiver
-    lateinit var thingyLiveUpdateReceiver: BroadcastReceiver
-    lateinit var looperRespeck: Looper
-    lateinit var looperThingy: Looper
-
-    val filterTestRespeck = IntentFilter(Constants.ACTION_RESPECK_LIVE_BROADCAST)
-    val filterTestThingy = IntentFilter(Constants.ACTION_THINGY_BROADCAST)
-
     private lateinit var tflite: Interpreter
+    private lateinit var respeckLiveUpdateReceiver: BroadcastReceiver
+    private lateinit var looperRespeck: Looper
+    private val filterTestRespeck = IntentFilter(Constants.ACTION_RESPECK_LIVE_BROADCAST)
+
+    val windowSize = 50  // Number of time steps
+    val featureSize = 3  // accel_x, accel_y, accel_z
+    val slidingWindowBuffer = ArrayList<FloatArray>(windowSize)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,7 +85,6 @@ class LiveDataActivity : ComponentActivity() {
 
         // Set up the broadcast receiver for Thingy
         setupThingyReceiver()
-
         setContent {
             YourAppTheme {
                     // Call your composable function here
@@ -118,38 +97,24 @@ class LiveDataActivity : ComponentActivity() {
     }
         // set up the broadcast receiver
     private fun setupRespeckReceiver() {
+
+        // Set up the broadcast receiver for respeck data
+
         respeckLiveUpdateReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-
-                Log.i("thread", "I am running on thread = " + Thread.currentThread().name)
-
                 val action = intent.action
-
                 if (action == Constants.ACTION_RESPECK_LIVE_BROADCAST) {
-
-                    val liveData =
-                        intent.getSerializableExtra(Constants.RESPECK_LIVE_DATA) as RESpeckLiveData
-                    Log.d("Live", "onReceive: liveData = " + liveData)
-
-                    // get all relevant intent contents
+                    val liveData = intent.getSerializableExtra(Constants.RESPECK_LIVE_DATA) as RESpeckLiveData
                     val x = liveData.accelX
                     val y = liveData.accelY
                     val z = liveData.accelZ
 
-                    val gyro = liveData.gyro
-                    val gyroX = gyro.x
-                    val gyroY = gyro.y
-                    val gyroZ = gyro.z
-
-                    addSensorDataToBuffer(x, y, z, gyroX, gyroY, gyroZ)
-
-                    time += 1
-
+                    addSensorDataToBuffer(x, y, z)
                 }
             }
         }
 
-        // register receiver on another thread
+        // Register receiver on another thread
         val handlerThreadRespeck = HandlerThread("bgThreadRespeckLive")
         handlerThreadRespeck.start()
         looperRespeck = handlerThreadRespeck.looper
@@ -269,7 +234,7 @@ class LiveDataActivity : ComponentActivity() {
 
     // Function to load the model from assets folder
     private fun loadModelFile(): MappedByteBuffer {
-        val fileDescriptor = assets.openFd("model.tflite")  // Make sure this matches your model file name
+        val fileDescriptor = assets.openFd("daily_physical_activity.tflite")
         val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
         val fileChannel = inputStream.channel
         val startOffset = fileDescriptor.startOffset
@@ -277,75 +242,52 @@ class LiveDataActivity : ComponentActivity() {
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
     }
 
-    val windowSize = 50  // Number of time steps
-    val featureSize = 6  // accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z
-    val slidingWindowBuffer = ArrayList<FloatArray>(windowSize)
-
-    fun addSensorDataToBuffer(accelX: Float, accelY: Float, accelZ: Float, gyroX: Float, gyroY: Float, gyroZ: Float) {
-        slidingWindowBuffer.add(floatArrayOf(accelX, accelY, accelZ, gyroX, gyroY, gyroZ))
-
-        // If the buffer is full, run inference
+    private fun addSensorDataToBuffer(accelX: Float, accelY: Float, accelZ: Float) {
+        slidingWindowBuffer.add(floatArrayOf(accelX, accelY, accelZ))
         if (slidingWindowBuffer.size >= windowSize) {
-            runInference()  // Call this function when buffer is ready
-            slidingWindowBuffer.clear()  // Clear the buffer for the next sliding window
+            runInference()
+            slidingWindowBuffer.clear()
         }
     }
 
     private fun convertToByteBuffer(): ByteBuffer {
-        val byteBuffer = ByteBuffer.allocateDirect(4 * windowSize * featureSize)  // 4 bytes per float
-        byteBuffer.order(ByteOrder.nativeOrder())  // Use native byte order
-
+        val byteBuffer = ByteBuffer.allocateDirect(4 * windowSize * featureSize)
+        byteBuffer.order(ByteOrder.nativeOrder())
         for (dataPoint in slidingWindowBuffer) {
             for (value in dataPoint) {
                 byteBuffer.putFloat(value)
             }
         }
-
         return byteBuffer
     }
 
-    fun runInference() {
-        // Convert the buffer to ByteBuffer
+    private fun runInference() {
         val inputBuffer = convertToByteBuffer()
-
-        // Prepare output buffer to store the model’s predictions
-        val outputBuffer = Array(1) { FloatArray(7) }  // Replace NUM_CLASSES with the actual number of classes your model predicts
-
-        // Run the inference
+        val outputBuffer = Array(1) { FloatArray(11) }
         tflite.run(inputBuffer, outputBuffer)
-
-        // Get the predicted class by taking the argmax of the output
         val predictedClass = outputBuffer[0].indices.maxByOrNull { outputBuffer[0][it] } ?: -1
-
-        // Display the prediction in the UI
         displayPrediction(predictedClass)
     }
 
-    fun displayPrediction(predictedClass: Int) {
-        val activityLabels = arrayOf("Ascending Stairs", "Shuffle Walking", "Sitting or Standing", "Misc Movement", "Normal Walking", "Lying Down", "Descending Stairs")
+    private fun displayPrediction(predictedClass: Int) {
+        val activityLabels = arrayOf("Sitting or Standing", "Lying Down on Back", "Lying Down on Left",
+            "Lying Down on Right", "Lying Down on Stomach", "Ascending Stairs", "Shuffle Walking",
+            "Misc Movement", "Normal Walking", "Descending Stairs", "Running")
 
-        // Ensure you're on the main thread before updating the UI
         runOnUiThread {
             if (predictedClass in activityLabels.indices) {
                 val predictedActivity = activityLabels[predictedClass]
                 predictionViewModel.setPredictedActivity(predictedActivity)
+
             } else {
                 Log.e("Prediction Error", "Invalid predicted class index: $predictedClass")
             }
         }
     }
 
-
-    // NEW CODE ENDS HERE
-
-
-
-
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(respeckLiveUpdateReceiver)
-        unregisterReceiver(thingyLiveUpdateReceiver)
         looperRespeck.quit()
-        looperThingy.quit()
     }
 }

@@ -53,6 +53,27 @@
             </intent-filter>
         </activity>
         <activity
+            android:exported="true"
+            android:name=".live.SocialSignalsActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="com.specknet.respeck.RESPECK_LIVE_BROADCAST" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.specknet.respeck.ACTION_RESPECK_LIVE_BROADCAST" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.specknet.respeck.ACTION_RESPECK_REHAB_BROADCAST" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.specknet.respeck.RESPECK_REHAB_BROADCAST" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.specknet.pdiotapp.RESPECK_BROADCAST" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".barcode.BarcodeActivity"
             android:exported="true"
             android:screenOrientation="portrait" />
@@ -67,6 +88,10 @@
                 <action android:name="com.specknet.pdiotapp.RESPECK_DISCONNECTED" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".history.ActivityHistory"
+            android:exported="true"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".bluetooth.BluetoothService"
