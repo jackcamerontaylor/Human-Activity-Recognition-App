@@ -35,19 +35,22 @@ public interface ActivityDao {
     abstract void deleteByActivityId(long userId);
 
     // TODO
-    @Query("DELETE from activity_table WHERE(start < :endTimestamp AND `End` > :startTimestamp)")
-    abstract void deleteActivitiesInGivenTimeframe(Long startTimestamp, Long endTimestamp);
+    @Query("DELETE from activity_table WHERE(start == :startTimestamp)")
+    abstract void deleteActivitiesInGivenTimeframe(Long startTimestamp);
 
     @Query("SELECT * from activity_table ORDER BY start ASC")
     abstract LiveData<List<Activity>> getAllActivities();
 
     // TODO
-    @Query("SELECT * from activity_table WHERE (start < :endTimestamp AND `End` > :startTimestamp)")
-    abstract Activity[] getAllActivitiesInTimeframe(Long startTimestamp, Long endTimestamp);
+    @Query("SELECT * from activity_table WHERE (start == :startTimestamp)")
+    abstract Activity[] getAllActivitiesInTimeframe(Long startTimestamp);
 
     // TODO
     @Query("SELECT * from activity_table WHERE type = :activityType")
     abstract Activity[] getAllActivitiesByType(String activityType);
+
+    @Query("SELECT * FROM activity_table WHERE start BETWEEN :startOfDay AND :endOfDay AND model = :model AND type = :activityType ORDER BY start ASC")
+    LiveData<List<Activity>> getActivitiesForDay(long startOfDay, long endOfDay, String model, String activityType);
 
     @Update
     public void updateActivity(Activity activity);

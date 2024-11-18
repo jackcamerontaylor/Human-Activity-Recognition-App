@@ -9,51 +9,56 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-
-import com.specknet.pdiotapp.utils.Constants
-import com.specknet.pdiotapp.utils.RESpeckLiveData
-import org.tensorflow.lite.Interpreter
-import java.io.FileInputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.dp
-import com.specknet.pdiotapp.ui.theme.YourAppTheme
-import androidx.compose.material3.Text
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import com.specknet.pdiotapp.R
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Image
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.specknet.pdiotapp.R
+import com.specknet.pdiotapp.history.ActivityDao
+import com.specknet.pdiotapp.history.ActivityDatabase
+import com.specknet.pdiotapp.ui.theme.YourAppTheme
+import com.specknet.pdiotapp.utils.Constants
+import com.specknet.pdiotapp.utils.RESpeckLiveData
+import org.tensorflow.lite.Interpreter
+import java.io.FileInputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
-import androidx.compose.ui.res.painterResource
+import com.specknet.pdiotapp.history.Activity
+
 
 class PredictionViewModel : ViewModel() {
     private val _predictedActivity = MutableLiveData<String>("Waiting for prediction...")
@@ -78,8 +83,13 @@ class LiveDataActivity : ComponentActivity() {
     val featureSize = 3  // accel_x, accel_y, accel_z
     val slidingWindowBuffer = ArrayList<FloatArray>(windowSize)
 
+    lateinit var db: ActivityDatabase  // Initialize the database
+    lateinit var ActivityDao: ActivityDao
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        db = ActivityDatabase.getDatabase(this)
+        ActivityDao = db.activityDao()
         tflite = Interpreter(loadModelFile())
         setupRespeckReceiver()
 
@@ -152,6 +162,7 @@ class LiveDataActivity : ComponentActivity() {
     )
     @Composable
     fun TopBox(predictedActivity: String) {
+        val context = LocalContext.current
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
         val screenWidth = LocalConfiguration.current.screenWidthDp.dp
         val imageResId = when (predictedActivity) {
@@ -163,33 +174,63 @@ class LiveDataActivity : ComponentActivity() {
             "Descending Stairs" -> R.drawable.descending_stairs
             else -> null  // Default image
         }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .fillMaxHeight()
-
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            imageResId?.let { Image(
-                painter = painterResource(id = imageResId), // Replace with your image name
-                contentDescription = "Description of the image",
-                modifier = Modifier
-                    .align(Alignment.Center) // Center the image in the Box
-                    .offset(screenWidth * 0.1f)
-
-
-            ) } ?: run {}
-            Text(
-                predictedActivity,
-                color = Color.White,
-                style = TextStyle(
-                    fontFamily = customFontFamily,
-                    fontSize = 40.sp// Adjust size as needed
+            Button(
+                onClick = {
+                    val intent = Intent(
+                        context,
+                        SocialSignalsActivity::class.java
+                    ) // Create an Intent to start LiveDataActivity
+                    context.startActivity(intent) // Start the activity
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
                 ),
+                shape = RectangleShape,
                 modifier = Modifier
-                    .offset(x = screenWidth * 0.1f, y = -screenHeight * 0.1f)
-                    .align(Alignment.BottomCenter)
-            )
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Switch to Social Signals",
+                    style = TextStyle(
+                        fontSize = 20.sp// Adjust size as needed
+                    )
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .fillMaxHeight()
+
+            ) {
+
+                imageResId?.let {
+                    Image(
+                        painter = painterResource(id = imageResId), // Replace with your image name
+                        contentDescription = "Description of the image",
+                        modifier = Modifier
+                            .align(Alignment.Center) // Center the image in the Box
+                            .offset(screenWidth * 0.1f)
+
+
+                    )
+                } ?: run {}
+                Text(
+                    predictedActivity,
+                    color = Color.White,
+                    style = TextStyle(
+                        fontFamily = customFontFamily,
+                        fontSize = 40.sp// Adjust size as needed
+                    ),
+                    modifier = Modifier
+                        .offset(x = screenWidth * 0.1f, y = -screenHeight * 0.1f)
+                        .align(Alignment.BottomCenter)
+                )
+            }
         }
     }
 
@@ -241,10 +282,20 @@ class LiveDataActivity : ComponentActivity() {
             if (predictedClass in activityLabels.indices) {
                 val predictedActivity = activityLabels[predictedClass]
                 predictionViewModel.setPredictedActivity(predictedActivity)
+                addActivity(System.currentTimeMillis(), predictedActivity)
 
             } else {
                 Log.e("Prediction Error", "Invalid predicted class index: $predictedClass")
             }
+        }
+    }
+
+    fun addActivity(startTime: Long, description: String) {
+        val newActivity = Activity(startTime, description, "Activity")
+
+        // Use the databaseWriteExecutor to insert the activity on a background thread
+        ActivityDatabase.databaseWriteExecutor.execute {
+            ActivityDao.insert(newActivity)
         }
     }
 
