@@ -152,7 +152,8 @@ class LiveDataActivity : ComponentActivity() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundColour)
+                .background(backgroundColour),
+            contentAlignment = Alignment.Center
         ) {
             TopBox(predictedActivity)
         }
@@ -174,64 +175,36 @@ class LiveDataActivity : ComponentActivity() {
             "Descending Stairs" -> R.drawable.descending_stairs
             else -> null  // Default image
         }
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Button(
-                onClick = {
-                    val intent = Intent(
-                        context,
-                        SocialSignalsActivity::class.java
-                    ) // Create an Intent to start LiveDataActivity
-                    context.startActivity(intent) // Start the activity
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
-                ),
-                shape = RectangleShape,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = "Switch to Social Signals",
-                    style = TextStyle(
-                        fontSize = 20.sp// Adjust size as needed
-                    )
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .fillMaxHeight()
 
-            ) {
-
-                imageResId?.let {
-                    Image(
-                        painter = painterResource(id = imageResId), // Replace with your image name
-                        contentDescription = "Description of the image",
-                        modifier = Modifier
-                            .align(Alignment.Center) // Center the image in the Box
-                            .offset(screenWidth * 0.1f)
-
-
-                    )
-                } ?: run {}
-                Text(
-                    predictedActivity,
-                    color = Color.White,
-                    style = TextStyle(
-                        fontFamily = customFontFamily,
-                        fontSize = 40.sp// Adjust size as needed
-                    ),
+            imageResId?.let {
+                Image(
+                    painter = painterResource(id = imageResId), // Replace with your image name
+                    contentDescription = "Description of the image",
                     modifier = Modifier
-                        .offset(x = screenWidth * 0.1f, y = -screenHeight * 0.1f)
-                        .align(Alignment.BottomCenter)
+                        .align(Alignment.Center) // Center the image in the Box
+                        .fillMaxWidth()
+
                 )
-            }
+            } ?: run {}
+            Text(
+                predictedActivity,
+                color = Color.White,
+                style = TextStyle(
+                    fontFamily = customFontFamily,
+                    fontSize = 40.sp// Adjust size as needed
+                ),
+                modifier = Modifier
+                    .offset(y = -screenHeight * 0.1f)
+                    .align(Alignment.BottomCenter)
+            )
         }
+
     }
 
     // NEW CODE HERE

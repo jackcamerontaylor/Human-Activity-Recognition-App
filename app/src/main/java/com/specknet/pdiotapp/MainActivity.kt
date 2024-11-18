@@ -56,6 +56,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.specknet.pdiotapp.live.SocialSignalsActivity
 
 
 class MainActivity : ComponentActivity() {
@@ -119,6 +120,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainContent() {
+        val context = LocalContext.current
         Box(modifier = Modifier.fillMaxSize()) {
             // Column for the buttons centered horizontally
             Column(
@@ -134,8 +136,32 @@ class MainActivity : ComponentActivity() {
                         .fillMaxWidth(0.9f)// Adjust size as needed
                 )
                 Buttons()
-                ///Spacer(modifier = Modifier.height(20.dp))
-                LiveDataActBut()
+                Spacer(modifier = Modifier.height(20.dp))
+                Button(onClick = {
+                    val intent = Intent(context, LiveDataActivity::class.java) // Create an Intent to start LiveDataActivity
+                    context.startActivity(intent) // Start the activity
+                },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.Black
+                    ),
+                    shape = RectangleShape
+                ) {
+                    Text(text="Activity Live")
+                }
+                Button(onClick = {
+                    val intent = Intent(context, SocialSignalsActivity::class.java) // Create an Intent to start LiveDataActivity
+                    context.startActivity(intent) // Start the activity
+                },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.Black
+                    ),
+                    shape = RectangleShape
+                ) {
+                    Text(text="Breathing Live")
+                }
+                ///LiveDataActBut()
             }
 
             // Image at the bottom of the screen
