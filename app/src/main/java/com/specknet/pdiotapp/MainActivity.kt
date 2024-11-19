@@ -136,7 +136,6 @@ class MainActivity : ComponentActivity() {
                         .fillMaxWidth(0.9f)// Adjust size as needed
                 )
                 Buttons()
-                Spacer(modifier = Modifier.height(50.dp))
                 Button(onClick = {
                     val intent = Intent(context, LiveDataActivity::class.java) // Create an Intent to start LiveDataActivity
                     context.startActivity(intent) // Start the activity
@@ -154,7 +153,6 @@ class MainActivity : ComponentActivity() {
                             .fillMaxWidth(0.8f)// Adjust size as needed
                     )
                 }
-                Spacer(modifier = Modifier.height(20.dp))
                 Button(onClick = {
                     val intent = Intent(context, SocialSignalsActivity::class.java) // Create an Intent to start LiveDataActivity
                     context.startActivity(intent) // Start the activity

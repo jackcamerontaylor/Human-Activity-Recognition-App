@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -196,7 +197,7 @@ class LiveDataActivity : ComponentActivity() {
                     painter = painterResource(id = R.drawable.top_live), // Replace with your image name
                     contentDescription = "Description of the image",
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(0.8f)
 
                 )
                 imageResId?.let {

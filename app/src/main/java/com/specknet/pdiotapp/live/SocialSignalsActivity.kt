@@ -147,7 +147,7 @@ class SocialSignalsActivity : ComponentActivity() {
                     painter = painterResource(id = R.drawable.top_live), // Replace with your image name
                     contentDescription = "Description of the image",
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(0.8f)
 
                 )
                 imageResId?.let {
