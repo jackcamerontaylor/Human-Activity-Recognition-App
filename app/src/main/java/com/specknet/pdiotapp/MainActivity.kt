@@ -147,9 +147,14 @@ class MainActivity : ComponentActivity() {
                     ),
                     shape = RectangleShape
                 ) {
-                    Text(text="Activity Live", style=TextStyle(fontSize = 30.sp))
+                    Image(
+                        painter = painterResource(id = R.drawable.activity),
+                        contentDescription = "Activity",
+                        modifier = Modifier
+                            .fillMaxWidth(0.8f)// Adjust size as needed
+                    )
                 }
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 Button(onClick = {
                     val intent = Intent(context, SocialSignalsActivity::class.java) // Create an Intent to start LiveDataActivity
                     context.startActivity(intent) // Start the activity
@@ -160,7 +165,12 @@ class MainActivity : ComponentActivity() {
                     ),
                     shape = RectangleShape
                 ) {
-                    Text(text="Breathing Live", style=TextStyle(fontSize = 30.sp))
+                    Image(
+                        painter = painterResource(id = R.drawable.breathing),
+                        contentDescription = "Breathing",
+                        modifier = Modifier
+                            .fillMaxWidth(1f)// Adjust size as needed
+                    )
                 }
                 ///LiveDataActBut()
             }

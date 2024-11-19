@@ -16,9 +16,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,6 +42,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
@@ -61,7 +64,7 @@ import com.specknet.pdiotapp.history.Activity
 
 
 class PredictionViewModel : ViewModel() {
-    private val _predictedActivity = MutableLiveData<String>("Waiting for prediction...")
+    private val _predictedActivity = MutableLiveData<String>("Waiting for Prediction...")
     val predictedActivity: LiveData<String> get() = _predictedActivity
 
     fun setPredictedActivity(activity: String) {
@@ -137,9 +140,9 @@ class LiveDataActivity : ComponentActivity() {
 
     @Composable
     fun MainContent(viewModel: PredictionViewModel){
-        var backgroundColour by remember { mutableStateOf(Color.Magenta) }
+        ///var backgroundColour by remember { mutableStateOf(Color.Magenta) }
         val predictedActivity by viewModel.predictedActivity.observeAsState("Waiting for prediction...")
-        backgroundColour = when (predictedActivity) {
+        /*backgroundColour = when (predictedActivity) {
             "Ascending Stairs" -> Color(0xFF006400) // DarkGreen
             "Shuffle Walking" -> Color(0xFF00008B)  // DarkBlue
             "Sitting or Standing" -> Color(0xFFA9A9A9) // DarkGray
@@ -148,11 +151,10 @@ class LiveDataActivity : ComponentActivity() {
             "Lying Down" -> Color(0xFF708090)       // SlateGray
             "Descending Stairs" -> Color(0xFF800000) // Maroon
             else -> Color(0xFF800080)               // Purple
-        }
+        } */
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(backgroundColour),
+                .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             TopBox(predictedActivity)
@@ -171,38 +173,53 @@ class LiveDataActivity : ComponentActivity() {
             "Shuffle Walking" -> R.drawable.shuffle_walking
             "Sitting or Standing" -> R.drawable.sitting_or_standing
             "Normal Walking" -> R.drawable.normal_walking
-            "Lying Down" -> R.drawable.lying_down
+            "Lying Down on Back" -> R.drawable.lying_down
+            "Lying Down on Left" -> R.drawable.lying_down_left
+            "Lying Down on Right" -> R.drawable.lying_down_right
+            "Lying Down on Stomach" -> R.drawable.lying_down_stomach
+            "Running" -> R.drawable.running
             "Descending Stairs" -> R.drawable.descending_stairs
-            else -> null  // Default image
+            else -> R.drawable.placeholder // Default image
         }
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth()
                 .fillMaxHeight(),
             contentAlignment = Alignment.Center
         ) {
-
-            imageResId?.let {
+            Column (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
                 Image(
-                    painter = painterResource(id = imageResId), // Replace with your image name
+                    painter = painterResource(id = R.drawable.top_live), // Replace with your image name
                     contentDescription = "Description of the image",
                     modifier = Modifier
-                        .align(Alignment.Center) // Center the image in the Box
                         .fillMaxWidth()
 
                 )
-            } ?: run {}
-            Text(
-                predictedActivity,
-                color = Color.White,
-                style = TextStyle(
-                    fontFamily = customFontFamily,
-                    fontSize = 40.sp// Adjust size as needed
-                ),
-                modifier = Modifier
-                    .offset(y = -screenHeight * 0.1f)
-                    .align(Alignment.BottomCenter)
-            )
+                imageResId?.let {
+                    Image(
+                        painter = painterResource(id = imageResId), // Replace with your image name
+                        contentDescription = "Description of the image",
+                        modifier = Modifier // Center the image in the Box
+                            .fillMaxWidth()
+
+                    )
+                } ?: run {}
+                Text(
+                    predictedActivity,
+                    color = Color.Black,
+                    style = TextStyle(
+                        fontFamily = customFontFamily,
+                        fontSize = 40.sp// Adjust size as needed
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                )
+            }
         }
 
     }
