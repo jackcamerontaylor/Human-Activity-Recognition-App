@@ -34,6 +34,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.compose.runtime.Composable
 import com.specknet.pdiotapp.ui.theme.YourAppTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ButtonDefaults
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,16 +49,18 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.specknet.pdiotapp.live.SocialSignalsActivity
 
 
 class MainActivity : ComponentActivity() {
 
-    // buttons and textviews
 
     // permissions
     lateinit var permissionAlertDialog: AlertDialog.Builder
@@ -117,37 +120,60 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainContent() {
+        val context = LocalContext.current
         Box(modifier = Modifier.fillMaxSize()) {
             // Column for the buttons centered horizontally
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 100.dp, top = 100.dp), // Add bottom padding to avoid overlap with image
+                    .fillMaxWidth(), // Add bottom padding to avoid overlap with image
                 horizontalAlignment = Alignment.CenterHorizontally, // Center items horizontally
                 verticalArrangement = Arrangement.Top // Align items at the top
             ) {
-                Text(
-                    "Health App",
-                    color = Color.Black,
-                    style = TextStyle(
-                        fontFamily = delius,
-                        fontSize = 40.sp// Adjust size as needed
-                    ),
-                    modifier = Modifier.padding(bottom = 30.dp)
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)// Adjust size as needed
                 )
-                LiveDataActBut()
-                Spacer(modifier = Modifier.height(16.dp))
-                PairingActBut()
+                Buttons()
+                Button(onClick = {
+                    val intent = Intent(context, LiveDataActivity::class.java) // Create an Intent to start LiveDataActivity
+                    context.startActivity(intent) // Start the activity
+                },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.Black
+                    ),
+                    shape = RectangleShape
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.activity),
+                        contentDescription = "Activity",
+                        modifier = Modifier
+                            .fillMaxWidth(0.8f)// Adjust size as needed
+                    )
+                }
+                Button(onClick = {
+                    val intent = Intent(context, SocialSignalsActivity::class.java) // Create an Intent to start LiveDataActivity
+                    context.startActivity(intent) // Start the activity
+                },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.Black
+                    ),
+                    shape = RectangleShape
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.breathing),
+                        contentDescription = "Breathing",
+                        modifier = Modifier
+                            .fillMaxWidth(1f)// Adjust size as needed
+                    )
+                }
+                ///LiveDataActBut()
             }
 
             // Image at the bottom of the screen
-            Image(
-                painter = painterResource(id = R.drawable.home_page), // Replace with your image resource
-                contentDescription = "Description of the image", // Description for accessibility
-                modifier = Modifier
-                    .align(Alignment.BottomCenter) // Align image at the bottom center
-                    .padding(16.dp) // Optional padding around the image
-            )
         }
     }
 
@@ -157,22 +183,70 @@ class MainActivity : ComponentActivity() {
         Button(onClick = {
             val intent = Intent(context, LiveDataActivity::class.java) // Create an Intent to start LiveDataActivity
             context.startActivity(intent) // Start the activity
-        }) {
-            Text(text = "Watch Live HAR")
-
+        },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.White
+            ),
+            shape = RectangleShape
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.home_page),
+                contentDescription = "Pair Sensors",
+                modifier = Modifier.fillMaxWidth()// Adjust size as needed
+            )
         }
     }
 
     @Composable
-    fun PairingActBut() {
-        val context = LocalContext.current // Get the current context
-        Button(onClick = {
-            val intent = Intent(context, ConnectingActivity::class.java) // Create an Intent to start LiveDataActivity
-            context.startActivity(intent) // Start the activity
-        }) {
-            Text(text = "Pair Sensors")
+    fun Buttons() {
+        val context = LocalContext.current
+        Row (
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center // optional spacing between buttons
+        ) {
+            Button(onClick = {
+                val intent = Intent(context, ConnectingActivity::class.java) // Create an Intent to start LiveDataActivity
+                context.startActivity(intent) // Start the activity
+            },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White
+                ),
+                shape = RectangleShape,
+                modifier = Modifier
+                    .weight(1.2f)
+            ) {
+
+                Image(
+                    painter = painterResource(id = R.drawable.sensors),
+                    contentDescription = "Pair Sensors",
+                    modifier = Modifier.fillMaxWidth() // Adjust size as needed
+                )
+            }
+            Button(onClick = {
+                val intent = Intent(context, ActivityHistory::class.java) // Create an Intent to start LiveDataActivity
+                context.startActivity(intent) // Start the activity
+            },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White
+                ),
+                shape = RectangleShape,
+                modifier = Modifier
+                    .weight(1.2f)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.history),
+                    contentDescription = "History",
+                    modifier = Modifier.fillMaxWidth() // Adjust size as needed
+                )
+            }
+
         }
     }
+
 
     fun setupPermissions() {
         // BLE permissions

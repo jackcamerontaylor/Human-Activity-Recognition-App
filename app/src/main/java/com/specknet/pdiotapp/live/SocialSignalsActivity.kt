@@ -8,9 +8,26 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
+import android.util.Log
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import com.specknet.pdiotapp.R
+import com.specknet.pdiotapp.history.Activity
+import com.specknet.pdiotapp.history.ActivityDao
+import com.specknet.pdiotapp.history.ActivityDatabase
+import com.specknet.pdiotapp.ui.theme.YourAppTheme
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.RESpeckLiveData
 import org.tensorflow.lite.Interpreter
@@ -19,9 +36,42 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 
-class SocialSignalsActivity : AppCompatActivity() {
+class PredictionBreathingViewModel : ViewModel() {
+    private val _predictedActivity = MutableLiveData<String>("Waiting for Prediction...")
+    val predictedActivity: LiveData<String> get() = _predictedActivity
 
+    fun setPredictedActivity(activity: String) {
+        _predictedActivity.value = activity
+    }
+}
+
+class SocialSignalsActivity : ComponentActivity() {
+    private val predictionViewModel: PredictionBreathingViewModel by viewModels()
     private lateinit var tflite: Interpreter
     private lateinit var respeckLiveUpdateReceiver: BroadcastReceiver
     private lateinit var looperRespeck: Looper
@@ -31,14 +81,101 @@ class SocialSignalsActivity : AppCompatActivity() {
     val featureSize = 3  // accel_x, accel_y, accel_z
     val slidingWindowBuffer = ArrayList<FloatArray>(windowSize)
 
+    lateinit var db: ActivityDatabase  // Initialize the database
+    lateinit var ActivityDao: ActivityDao
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_social_signals)  // Point to the social signals layout
-
+        db = ActivityDatabase.getDatabase(this)
+        ActivityDao = db.activityDao()
         // Initialise the TensorFlow Lite interpreter for social signals
         tflite = Interpreter(loadModelFile("social_signals.tflite"))
+        setUpRespeckReceiver()
 
+        setContent {
+            YourAppTheme {
+                MainContent(predictionViewModel)
+            }
+        }
         // Set up the broadcast receiver for Respeck data
+    }
+
+    @Composable
+    fun MainContent(viewModel: PredictionBreathingViewModel){
+        ///var backgroundColour by remember { mutableStateOf(Color.Magenta) }
+        val predictedActivity by viewModel.predictedActivity.observeAsState("Waiting for prediction...")
+        /*backgroundColour = when (predictedActivity) {
+            "Normal Breathing" -> Color(0xFF006400) // DarkGreen
+            "Hyperventilation" -> Color(0xFF00008B)  // DarkBlue
+            "Coughing" -> Color(0xFFA9A9A9) // DarkGray
+            "Other" -> Color(0xFF008080)    // Teal
+            else -> Color(0xFF800080)               // Purple
+        }*/
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            TopBox(predictedActivity)
+        }
+    }
+    val customFontFamily = FontFamily(
+        Font(R.font.delius, FontWeight.Normal)
+    )
+    @Composable
+    fun TopBox(predictedActivity: String) {
+        val context = LocalContext.current
+        val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+        val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+        val imageResId = when (predictedActivity) {
+            "Normal Breathing" -> R.drawable.breathing_normally
+            "Hyperventilation" -> R.drawable.hyperventilating
+            "Coughing" -> R.drawable.coughing
+            else -> R.drawable.placeholder // Default image
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+                Image(
+                    painter = painterResource(id = R.drawable.top_live), // Replace with your image name
+                    contentDescription = "Description of the image",
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+
+                )
+                imageResId?.let {
+                    Image(
+                        painter = painterResource(id = imageResId), // Replace with your image name
+                        contentDescription = "Description of the image",
+                        modifier = Modifier // Center the image in the Box
+                            .fillMaxWidth()
+
+                    )
+                } ?: run {}
+                Text(
+                    predictedActivity,
+                    color = Color.Black,
+                    style = TextStyle(
+                        fontFamily = customFontFamily,
+                        fontSize = 40.sp// Adjust size as needed
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                )
+            }
+        }
+
+    }
+
+    fun setUpRespeckReceiver(){
         respeckLiveUpdateReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val action = intent.action
@@ -58,6 +195,7 @@ class SocialSignalsActivity : AppCompatActivity() {
         looperRespeck = handlerThreadRespeck.looper
         val handlerRespeck = Handler(looperRespeck)
         this.registerReceiver(respeckLiveUpdateReceiver, filterTestRespeck, null, handlerRespeck)
+
     }
 
     private fun loadModelFile(modelFileName: String): MappedByteBuffer {
@@ -99,12 +237,23 @@ class SocialSignalsActivity : AppCompatActivity() {
     private fun displayPrediction(predictedClass: Int) {
         val socialSignalLabels = arrayOf("Normal Breathing", "Coughing", "Hyperventilation", "Other")
         runOnUiThread {
-            val predictionTextView = findViewById<TextView>(R.id.socialPredictionTextView)
-            predictionTextView.text = if (predictedClass in socialSignalLabels.indices) {
-                "Predicted Social Signal: ${socialSignalLabels[predictedClass]}"
+            if (predictedClass in socialSignalLabels.indices) {
+                val predictedActivity = socialSignalLabels[predictedClass]
+                predictionViewModel.setPredictedActivity(predictedActivity)
+                addActivity(System.currentTimeMillis(), predictedActivity)
+
             } else {
-                "Invalid prediction"
+                Log.e("Prediction Error", "Invalid predicted class index: $predictedClass")
             }
+        }
+    }
+
+    fun addActivity(startTime: Long, description: String) {
+        val newActivity = Activity(startTime, description, "Breathing")
+
+        // Use the databaseWriteExecutor to insert the activity on a background thread
+        ActivityDatabase.databaseWriteExecutor.execute {
+            ActivityDao.insert(newActivity)
         }
     }
 

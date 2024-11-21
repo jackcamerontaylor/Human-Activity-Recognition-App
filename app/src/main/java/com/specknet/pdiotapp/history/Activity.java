@@ -30,9 +30,7 @@ public class Activity {
     }
 
     @NonNull
-    public Long getEnd() {
-        return end;
-    }
+    public String getModel() {return model; }
 
     @NonNull
     public String getActivity_type() {
@@ -48,14 +46,15 @@ public class Activity {
 //    private LocalDateTime start;
     private Long start;
 
-    @NonNull
-    @ColumnInfo(name = "End")
-//    private LocalDateTime end;
-    private Long end;
+
 
     @NonNull
     @ColumnInfo(name = "Type")
     private String activity_type;  // TODO: enum?
+
+    @NonNull
+    @ColumnInfo(name = "Model")
+    private String model;
 
     // TODO: activity type vs name.
 
@@ -68,14 +67,14 @@ public class Activity {
 //            @NonNull LocalDateTime start,
 //            @NonNull LocalDateTime end,
             @NonNull Long start,
-            @NonNull Long end,
-            @NonNull String activity_type
+            @NonNull String activity_type,
+            @NonNull String model
 //            @NonNull Period duration
 //            @NonNull String duration
     ) {
         this.start = start;
-        this.end = end;
         this.activity_type = activity_type;
+        this.model = model;
 //        this.duration = duration;
     }
 
@@ -91,6 +90,6 @@ public class Activity {
 
     @NonNull
     public String getActivity() {
-        return (this.start.toString() + this.end.toString() + this.activity_type);
+        return (this.start.toString() + this.activity_type + this.model);
     }
 }
