@@ -28,7 +28,7 @@ import java.util.List;
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 @RunWith(AndroidJUnit4.class)
-public class DummyDatabaseTest {
+public class DatabaseTest {
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
