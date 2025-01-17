@@ -54,6 +54,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
@@ -61,7 +62,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class PredictionBreathingViewModel : ViewModel() {
-    private val _predictedActivity = MutableLiveData<String>("Waiting for prediction...")
+    private val _predictedActivity = MutableLiveData<String>("Waiting for Prediction...")
     val predictedActivity: LiveData<String> get() = _predictedActivity
 
     fun setPredictedActivity(activity: String) {
@@ -101,19 +102,18 @@ class SocialSignalsActivity : ComponentActivity() {
 
     @Composable
     fun MainContent(viewModel: PredictionBreathingViewModel){
-        var backgroundColour by remember { mutableStateOf(Color.Magenta) }
+        ///var backgroundColour by remember { mutableStateOf(Color.Magenta) }
         val predictedActivity by viewModel.predictedActivity.observeAsState("Waiting for prediction...")
-        backgroundColour = when (predictedActivity) {
+        /*backgroundColour = when (predictedActivity) {
             "Normal Breathing" -> Color(0xFF006400) // DarkGreen
             "Hyperventilation" -> Color(0xFF00008B)  // DarkBlue
             "Coughing" -> Color(0xFFA9A9A9) // DarkGray
             "Other" -> Color(0xFF008080)    // Teal
             else -> Color(0xFF800080)               // Purple
-        }
+        }*/
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundColour)
         ) {
             TopBox(predictedActivity)
         }
@@ -127,41 +127,50 @@ class SocialSignalsActivity : ComponentActivity() {
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
         val screenWidth = LocalConfiguration.current.screenWidthDp.dp
         val imageResId = when (predictedActivity) {
-            "Normal Breathing" -> R.drawable.logo
-            "Hyperventilation" -> R.drawable.logo
-            "Coughing" -> R.drawable.logo
-            "Other" -> R.drawable.logo
-            else -> null
+            "Normal Breathing" -> R.drawable.breathing_normally
+            "Hyperventilation" -> R.drawable.hyperventilating
+            "Coughing" -> R.drawable.coughing
+            else -> R.drawable.placeholder // Default image
         }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
-
+                .fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-
-            imageResId?.let {
+            Column (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
                 Image(
-                    painter = painterResource(id = imageResId), // Replace with your image name
+                    painter = painterResource(id = R.drawable.top_live), // Replace with your image name
                     contentDescription = "Description of the image",
                     modifier = Modifier
-                        .align(Alignment.Center) // Center the image in the Box
-                        .offset(screenWidth * 0.1f)
-
+                        .fillMaxWidth(0.8f)
 
                 )
-            } ?: run {}
-            Text(
-                predictedActivity,
-                color = Color.White,
-                style = TextStyle(
-                    fontFamily = customFontFamily,
-                    fontSize = 40.sp// Adjust size as needed
-                ),
-                modifier = Modifier
-                    .offset(x = screenWidth * 0.1f, y = -screenHeight * 0.1f)
-                    .align(Alignment.BottomCenter)
-            )
+                imageResId?.let {
+                    Image(
+                        painter = painterResource(id = imageResId), // Replace with your image name
+                        contentDescription = "Description of the image",
+                        modifier = Modifier // Center the image in the Box
+                            .fillMaxWidth()
+
+                    )
+                } ?: run {}
+                Text(
+                    predictedActivity,
+                    color = Color.Black,
+                    style = TextStyle(
+                        fontFamily = customFontFamily,
+                        fontSize = 40.sp// Adjust size as needed
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                )
+            }
         }
 
     }

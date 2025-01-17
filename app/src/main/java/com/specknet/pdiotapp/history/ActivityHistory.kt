@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -117,9 +119,11 @@ fun Title(model: ModelType) {
     val modeltype = model.selectedValue
     Row (
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(top=16.dp, bottom=8.dp),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
+
         Text(
             text = "Activity",
             modifier = Modifier
@@ -175,13 +179,8 @@ fun Data(repository: ActivityRepo, viewModel: DatePickerViewModel, model: ModelT
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(16.dp)) {
-        Text(
-            text = selectedDate,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally),
-            style = TextStyle(fontFamily= customFontFamily, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        )
+        .padding(horizontal=16.dp)) {
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -302,12 +301,36 @@ fun DatePickerExample(viewModel: DatePickerViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(onClick = { datePickerDialog.show() }) {
-            Text(text = "Pick a Date")
+        Button(
+            onClick = { datePickerDialog.show() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Black
+            )
+        ) {
+            Row ()
+            {
+                Icon(
+                    imageVector = Icons.Filled.CalendarToday,
+                    contentDescription = "Calendar Icon",
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .padding(end = 4.dp)
+                )
+                Text(
+                    text = selectedDate,
+                    style = TextStyle(
+                        fontFamily = customFontFamily,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
         }
     }
 }
