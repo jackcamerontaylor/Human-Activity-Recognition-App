@@ -2,8 +2,6 @@ package com.specknet.pdiotapp.live
 
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -58,6 +56,9 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import com.specknet.pdiotapp.history.Activity
+import android.os.BatteryManager
+import android.content.Intent
+import android.content.IntentFilter
 
 
 class PredictionViewModel : ViewModel() {
@@ -238,11 +239,31 @@ class LiveDataActivity : ComponentActivity() {
         return byteBuffer
     }
 
+    private fun logBatteryLevel(context: Context): Float {
+        // Fetch battery information
+        val batteryStatus = context.registerReceiver(
+            null,
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        )
+        val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = batteryStatus?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
+
+        // Calculate battery percentage
+        val batteryPct = level * 100 / scale.toFloat()
+        Log.d("Battery Level", "Current Battery Level: $batteryPct%")
+        return batteryPct
+    }
+
     private fun runInference() {
+        val startTime = System.currentTimeMillis() // Log start time
+
         val inputBuffer = convertToByteBuffer()
         val outputBuffer = Array(1) { FloatArray(11) }
         tflite.run(inputBuffer, outputBuffer)
         val predictedClass = outputBuffer[0].indices.maxByOrNull { outputBuffer[0][it] } ?: -1
+
+        val endTime = System.currentTimeMillis() // Log end time
+        Log.d("Prediction Time", "Inference Time: ${endTime - startTime} ms") // Log time taken for inference
         displayPrediction(predictedClass)
     }
 
